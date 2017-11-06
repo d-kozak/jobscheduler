@@ -2,6 +2,7 @@ package io.dkozak.jobscheduler;
 
 import com.airhacks.afterburner.injection.Injector;
 import io.dkozak.jobscheduler.mainview.MainView;
+import io.dkozak.jobscheduler.services.database.DatabaseConnector;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -9,6 +10,7 @@ import lombok.val;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +20,9 @@ import java.util.Map;
 public class Main extends Application {
 
     private static Logger log = initLog4j();
+
+    @Inject
+    private DatabaseConnector databaseConnector;
 
     public static void main(String[] args) {
         launch(args);
@@ -52,6 +57,7 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
+        databaseConnector.close();
         log.info("Closing the app");
     }
 
@@ -59,9 +65,15 @@ public class Main extends Application {
         try {
             log.info("loading the configuration file for DI");
             Map<Object, Object> map = loadGlobalConfiguration();
-            // add objects for injection if needed
+            // add other objects for injection if needed
             // ...
+
+            Logger logger = Logger.getLogger(Injector.class);
+            Injector.setLogger(logger::info);
             Injector.setConfigurationSource(map::get);
+
+            // inject fields in this class as well
+            Injector.injectMembers(getClass(), this);
         } catch (IOException ex) {
             log.error("Could not load configuration file: " + ex.getMessage());
         }
