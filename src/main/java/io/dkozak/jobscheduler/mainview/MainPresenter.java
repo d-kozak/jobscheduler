@@ -21,8 +21,9 @@ public class MainPresenter {
     @PostConstruct
     public void init() {
         log.info("init()");
-        System.out.println("global message: " + globalMessage);
-        System.out.println("local message: " + localMessage);
+
+        log.info("global message: " + globalMessage);
+        log.info("local message: " + localMessage);
     }
 
 }
