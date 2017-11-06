@@ -45,7 +45,7 @@ public class PersonDao implements CrudDao<Person, String> {
     public void createTable() throws SQLException {
         Connection connection = connector.getConnection();
         try (Statement statement = connection.createStatement();) {
-            val createStatement = "CREATE TABLE PERSON(" +
+            val createStatement = "CREATE TABLE Person(" +
                     "login VARCHAR(50) PRIMARY KEY," +
                     " firstName VARCHAR(50) NOT NULL , " +
                     "lastName VARCHAR(50) NOT NULL )";

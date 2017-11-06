@@ -35,11 +35,11 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         log.info("Application starting");
-        initInjector();
+        initInjector(primaryStage);
         initLog4j();
         val mainView = new MainView();
         val scene = new Scene(mainView.getView());
-        primaryStage.setTitle("Byl jeden pan, ten kozla mel, velice si, s nim rozumel");
+        primaryStage.setTitle("Job scheduler");
         primaryStage.setScene(scene);
         primaryStage.show();
         log.info("Stage shown");
@@ -65,7 +65,7 @@ public class Main extends Application {
         log.info("Closing the app");
     }
 
-    private void initInjector() {
+    private void initInjector(Stage primaryStage) {
         try {
             log.info("loading the configuration file for DI");
             Logger logger = Logger.getLogger(Injector.class);
@@ -74,6 +74,7 @@ public class Main extends Application {
             Map<Object, Object> map = loadGlobalConfiguration();
             // add other objects for injection if needed
             // ...
+            map.put("primaryStage", primaryStage);
             Injector.setConfigurationSource(map::get);
 
             // inject fields in this class as well
