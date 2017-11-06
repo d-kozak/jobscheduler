@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Main extends Application {
 
@@ -61,8 +62,21 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
+        log.info("preparing to close the app");
+
         databaseConnector.close();
-        log.info("Closing the app");
+
+        log.info("closing the dao executor service");
+
+        DaoController.daoExecutorService.shutdown();
+        try {
+            DaoController.daoExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+            log.info("dao executor terminated successfully");
+        } catch (InterruptedException ex) {
+            log.error("interrupted while waiting for the dao executor to end, now it will be shut down with force");
+            DaoController.daoExecutorService.shutdownNow();
+        }
+        log.info("shutting down the app... Goodbye :)");
     }
 
     private void initInjector(Stage primaryStage) {

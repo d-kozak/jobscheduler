@@ -5,6 +5,8 @@ import lombok.extern.log4j.Log4j;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Log4j
 public class DaoController {
@@ -14,6 +16,8 @@ public class DaoController {
 
     @Inject
     private String createTables;
+
+    public static final ExecutorService daoExecutorService = Executors.newFixedThreadPool(10);
 
     @PostConstruct
     public void init() {

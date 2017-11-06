@@ -12,8 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.sql.*;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static io.dkozak.jobscheduler.services.database.dao.DaoController.daoExecutorService;
 
 @Log4j
 public class PersonDao implements CrudDao<Person, String> {
@@ -26,9 +26,6 @@ public class PersonDao implements CrudDao<Person, String> {
     private PreparedStatement findOne;
     private PreparedStatement update;
     private PreparedStatement delete;
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
-
 
     @PostConstruct
     public void init() {
@@ -64,7 +61,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 return null;
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -83,7 +80,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 return null;
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -103,7 +100,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 }
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -123,7 +120,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 }
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -143,7 +140,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 return null;
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -163,7 +160,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 return null;
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
@@ -180,7 +177,7 @@ public class PersonDao implements CrudDao<Person, String> {
                 return null;
             }
         };
-        executorService.submit(task);
+        daoExecutorService.submit(task);
         return task;
     }
 
