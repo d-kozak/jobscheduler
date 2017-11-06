@@ -1,11 +1,12 @@
 package io.dkozak.jobscheduler.services.database.dao;
 
+import javafx.collections.ObservableList;
+
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 
 public interface CrudDao<T, Key> {
-    List<T> findALl() throws SQLException;
+    ObservableList<T> findALl() throws SQLException;
 
     Optional<T> findOne(Key key) throws SQLException;
 

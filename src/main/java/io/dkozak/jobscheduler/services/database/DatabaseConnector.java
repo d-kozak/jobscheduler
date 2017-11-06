@@ -12,12 +12,13 @@ import java.sql.DriverManager;
 public class DatabaseConnector implements AutoCloseable {
 
     @Inject
-    private String username;
+    private String databaseUsername;
 
     @Inject
-    private String password;
+    private String databasePassword;
 
-    private static final String url = "jdbc:mysql://localhost:3306/jobscheduler";
+    @Inject
+    private String databaseUrl;
 
     @Getter
     private Connection connection;
@@ -31,7 +32,7 @@ public class DatabaseConnector implements AutoCloseable {
         log.info("Connecting to the database");
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection(url, username, password);
+            connection = DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword);
             log.info("Connected successfully");
         } catch (Exception e) {
             log.error("Cannot connect");

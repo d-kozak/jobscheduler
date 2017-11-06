@@ -2,14 +2,14 @@ package io.dkozak.jobscheduler.services.database.dao;
 
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.database.DatabaseConnector;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import lombok.extern.log4j.Log4j;
 import lombok.val;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Log4j
@@ -31,10 +31,10 @@ public class PersonDao implements CrudDao<Person, String> {
         try {
             Connection connection = connector.getConnection();
             insert = connection.prepareStatement("INSERT INTO Person VALUES (?,?,?)");
-            findAll = connection.prepareStatement("SELECT login,firstName,lastName FROM PERSON p");
-            findOne = connection.prepareStatement("SELECT login,firstName,lastName FROM PERSON p WHERE p.login=?");
+            findAll = connection.prepareStatement("SELECT login,firstName,lastName FROM Person p");
+            findOne = connection.prepareStatement("SELECT login,firstName,lastName FROM Person p WHERE p.login=?");
             update = connection.prepareStatement("UPDATE Person p SET firstName=?,lastName=? WHERE p.login=?");
-            delete = connection.prepareStatement("DELETE FROM Person p WHERE p.login=?");
+            delete = connection.prepareStatement("DELETE FROM Person WHERE login=?");
             log.info("preparedStatements ready");
         } catch (SQLException ex) {
             // TODO show error
@@ -66,9 +66,9 @@ public class PersonDao implements CrudDao<Person, String> {
     }
 
     @Override
-    public List<Person> findALl() throws SQLException {
+    public ObservableList<Person> findALl() throws SQLException {
         log.info("finding all");
-        val result = new ArrayList<Person>();
+        val result = FXCollections.<Person>observableArrayList();
         try (ResultSet resultSet = findAll.executeQuery()) {
             while (resultSet.next()) {
                 Person person = getPersonFromResultSet(resultSet);
