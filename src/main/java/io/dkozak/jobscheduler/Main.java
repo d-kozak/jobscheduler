@@ -27,13 +27,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        log.debug("start()");
+        log.info("start()");
         initInjector();
         val mainView = new MainView();
         val scene = new Scene(mainView.getView());
         primaryStage.setTitle("Byl jeden pan, ten kozla mel, velice si, s nim rozumel");
         primaryStage.setScene(scene);
         primaryStage.show();
+        log.info("Stage shown");
     }
 
     private void initInjector() {

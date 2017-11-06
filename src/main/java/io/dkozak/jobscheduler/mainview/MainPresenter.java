@@ -20,7 +20,7 @@ public class MainPresenter {
 
     @PostConstruct
     public void init() {
-        log.debug("init()");
+        log.info("init()");
         System.out.println("global message: " + globalMessage);
         System.out.println("local message: " + localMessage);
     }
