@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler;
 import com.airhacks.afterburner.injection.Injector;
 import io.dkozak.jobscheduler.mainview.MainView;
 import io.dkozak.jobscheduler.services.database.DatabaseConnector;
+import io.dkozak.jobscheduler.services.database.dao.DaoController;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -23,6 +24,9 @@ public class Main extends Application {
 
     @Inject
     private DatabaseConnector databaseConnector;
+
+    @Inject
+    private DaoController daoController;
 
     public static void main(String[] args) {
         launch(args);
@@ -64,16 +68,18 @@ public class Main extends Application {
     private void initInjector() {
         try {
             log.info("loading the configuration file for DI");
+            Logger logger = Logger.getLogger(Injector.class);
+            Injector.setLogger(logger::info);
+
             Map<Object, Object> map = loadGlobalConfiguration();
             // add other objects for injection if needed
             // ...
-
-            Logger logger = Logger.getLogger(Injector.class);
-            Injector.setLogger(logger::info);
             Injector.setConfigurationSource(map::get);
 
             // inject fields in this class as well
             Injector.injectMembers(getClass(), this);
+
+
         } catch (IOException ex) {
             log.error("Could not load configuration file: " + ex.getMessage());
         }

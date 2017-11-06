@@ -14,4 +14,8 @@ public interface CrudDao<T, Key> {
     void update(T t) throws SQLException;
 
     void delete(Key key) throws SQLException;
+
+    void createTable() throws SQLException;
+
+    void dropTable() throws SQLException;
 }

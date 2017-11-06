@@ -25,21 +25,6 @@ public class PersonDao implements CrudDao<Person, String> {
     private PreparedStatement delete;
 
 
-    public void createTable() {
-        Connection connection = connector.getConnection();
-        try (Statement statement = connection.createStatement();) {
-            val createStatement = "CREATE TABLE PERSON(" +
-                    "login VARCHAR(50) PRIMARY KEY," +
-                    " firstName VARCHAR(50) NOT NULL , " +
-                    "lastName VARCHAR(50) NOT NULL )";
-            statement.executeUpdate(createStatement);
-
-        } catch (SQLException ex) {
-            // TODO show error
-            log.error("Creation of table failed");
-        }
-    }
-
     @PostConstruct
     public void init() {
         log.info("Preparing statements");
@@ -54,6 +39,27 @@ public class PersonDao implements CrudDao<Person, String> {
         } catch (SQLException ex) {
             // TODO show error
             log.error("Creation of prepared statements failed: " + ex.getMessage());
+        }
+    }
+
+    public void createTable() throws SQLException {
+        Connection connection = connector.getConnection();
+        try (Statement statement = connection.createStatement();) {
+            val createStatement = "CREATE TABLE PERSON(" +
+                    "login VARCHAR(50) PRIMARY KEY," +
+                    " firstName VARCHAR(50) NOT NULL , " +
+                    "lastName VARCHAR(50) NOT NULL )";
+            statement.executeUpdate(createStatement);
+
+        }
+    }
+
+    @Override
+    public void dropTable() throws SQLException {
+        Connection connection = connector.getConnection();
+        try (Statement statement = connection.createStatement()) {
+            val sql = "DROP TABLE Person";
+            statement.executeUpdate(sql);
         }
     }
 
