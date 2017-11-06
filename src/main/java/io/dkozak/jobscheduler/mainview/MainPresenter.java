@@ -6,8 +6,8 @@ import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -15,14 +15,16 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.function.BiConsumer;
 
 
 @Log4j
@@ -30,6 +32,9 @@ public class MainPresenter implements Initializable {
 
     @FXML
     private TableView<Person> tableView;
+
+    @FXML
+    private Text infoText;
 
     @Inject
     private Stage primaryStage;
@@ -47,46 +52,43 @@ public class MainPresenter implements Initializable {
         initTable();
     }
 
+    private void onTableChanged(TableColumn.CellEditEvent<Person, String> event, BiConsumer<Person, String> setter) {
+        Person person = event.getTableView()
+                             .getItems()
+                             .get(event.getTablePosition()
+                                       .getRow());
+        setter.accept(person, event.getNewValue());
+        person.setFirstName(event.getNewValue());
+
+
+        Task<Void> task = personDao.update(person);
+        task.setOnSucceeded(event1 -> {
+            showInfoMessage("Update finished");
+        });
+        task.exceptionProperty()
+            .addListener((observable, oldValue, newValue) -> showErrorMessage("Cannot update: " + newValue.getMessage()));
+
+    }
+
     private void initTable() {
         tableView.setEditable(true);
 
 
         TableColumn<Person, String> loginColumn = new TableColumn<>("Login");
-        loginColumn.setCellValueFactory(new PropertyValueFactory<Person, String>("login"));
+        loginColumn.setCellValueFactory(new PropertyValueFactory<>("login"));
         loginColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
-
         TableColumn<Person, String> firstNameColumn = new TableColumn<>("First name");
-        firstNameColumn.setCellValueFactory(new PropertyValueFactory<Person, String>("firstName"));
-        firstNameColumn.setOnEditCommit((EventHandler<TableColumn.CellEditEvent<Person, String>>) event -> {
-            Person person = event.getTableView()
-                                 .getItems()
-                                 .get(event.getTablePosition()
-                                           .getRow());
-            person.setFirstName(event.getNewValue());
-            try {
-                personDao.update(person);
-            } catch (SQLException e) {
-                // TODO handle error properly
-                throw new RuntimeException(e);
-            }
+        firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        firstNameColumn.setOnEditCommit(event -> {
+            onTableChanged(event, Person::setFirstName);
         });
         firstNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
         TableColumn<Person, String> lastNameColumn = new TableColumn<>("Last name");
-        lastNameColumn.setCellValueFactory(new PropertyValueFactory<Person, String>("lastName"));
-        lastNameColumn.setOnEditCommit((EventHandler<TableColumn.CellEditEvent<Person, String>>) event -> {
-            Person person = event.getTableView()
-                                 .getItems()
-                                 .get(event.getTablePosition()
-                                           .getRow());
-            person.setLastName(event.getNewValue());
-            try {
-                personDao.update(person);
-            } catch (SQLException e) {
-                // TODO handle error properly~
-                throw new RuntimeException(e);
-            }
+        lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        lastNameColumn.setOnEditCommit(event -> {
+            onTableChanged(event, Person::setLastName);
         });
         lastNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
@@ -94,19 +96,23 @@ public class MainPresenter implements Initializable {
         tableView.getColumns()
                  .addAll(loginColumn, firstNameColumn, lastNameColumn);
 
-        loadDataIntoTable();
+        loadDataIntoTable(true);
     }
 
-    private void loadDataIntoTable() {
+    private void loadDataIntoTable(boolean showMessageOnFinished) {
         log.info("loading data into the table");
-        try {
-            ObservableList<Person> people = personDao.findALl();
-            tableView.setItems(people);
-        } catch (SQLException e) {
-            // TODO handle error properly
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+
+        Task<ObservableList<Person>> task = personDao.findALl();
+        task.setOnSucceeded(event -> {
+            ObservableList<Person> loadedList = task.getValue();
+            log.info("Loaded" + loadedList);
+            tableView.setItems(loadedList);
+            if (showMessageOnFinished)
+                showInfoMessage("Table data loaded successfully");
+        });
+        task.exceptionProperty()
+            .addListener(((observable, oldValue, newValue) -> showErrorMessage("Cannot load data from database: " + newValue.getMessage())));
+
     }
 
     @FXML
@@ -127,7 +133,7 @@ public class MainPresenter implements Initializable {
         stage.showAndWait();
 
         // reload the table
-        loadDataIntoTable();
+        loadDataIntoTable(true);
     }
 
     @FXML
@@ -142,12 +148,24 @@ public class MainPresenter implements Initializable {
     public void onDelete(ActionEvent event) {
         Person selectedPerson = tableView.getSelectionModel()
                                          .getSelectedItem();
-        try {
-            personDao.delete(selectedPerson.getLogin());
-            loadDataIntoTable();
-        } catch (SQLException e) {
-            // TODO handle error properly
-            throw new RuntimeException(e);
-        }
+
+        Task<Void> task = personDao.delete(selectedPerson.getLogin());
+        task.setOnSucceeded(event1 -> {
+            showInfoMessage("Deleting " + selectedPerson.getLogin() + " finished");
+            loadDataIntoTable(false);
+        });
+
+        task.exceptionProperty()
+            .addListener((observable, oldValue, newValue) -> showErrorMessage("Cannot delete person " + selectedPerson.getLogin() + ", reason: " + newValue.getMessage()));
+    }
+
+    private void showInfoMessage(String message) {
+        infoText.setFill(Color.BLACK);
+        infoText.setText(message);
+    }
+
+    private void showErrorMessage(String message) {
+        infoText.setFill(Color.RED);
+        infoText.setText(message);
     }
 }

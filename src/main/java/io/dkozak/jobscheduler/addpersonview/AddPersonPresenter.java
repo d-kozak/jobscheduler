@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.addpersonview;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +16,6 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -65,30 +65,34 @@ public class AddPersonPresenter implements Initializable {
         String firstName = this.firstName.getText();
         String lastName = this.lastName.getText();
         if (login.isEmpty()) {
-            showEmptyMessageFor("Login");
+            showErrorMessageFor("Login");
             return;
         } else if (firstName.isEmpty()) {
-            showEmptyMessageFor("First name");
+            showErrorMessageFor("First name");
             return;
         } else if (lastName.isEmpty()) {
-            showEmptyMessageFor("last name");
+            showErrorMessageFor("last name");
             return;
         }
 
-        try {
-            Person person = new Person(login, firstName, lastName);
-            if (isEdit)
-                personDao.update(person);
-            else
-                personDao.save(person);
+
+        Person person = new Person(login, firstName, lastName);
+        Task<Void> task;
+        if (isEdit)
+            task = personDao.update(person);
+        else
+            task = personDao.save(person);
+
+        task.setOnSucceeded(workerStateEvent -> {
+            log.info("Task finished, window will be closed soon");
             closeWindow(event);
-        } catch (SQLException e) {
-            infoText.setFill(Color.RED);
-            infoText.setText(String.format("Cannot save new person, because: %d %s ", e.getErrorCode(), e.getMessage()));
-        }
+        });
+        task.exceptionProperty()
+            .addListener((observable, oldValue, newValue) -> showErrorMessageFor("Operation failed: " + newValue.getMessage()));
+
     }
 
-    private void showEmptyMessageFor(String field) {
+    private void showErrorMessageFor(String field) {
         infoText.setFill(Color.RED);
         infoText.setText(String.format("Please fill in the '%s' field", field));
     }

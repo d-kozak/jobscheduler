@@ -39,14 +39,13 @@ public class DaoController {
 
     public void dropTables() throws SQLException {
         log.info("dropping tables...");
-        try {
-            personDao.dropTable();
-        } catch (SQLException ex) {
-            if (1051 == ex.getErrorCode()) {
-                // unknown table, may be the first run of the app
-                log.info("Cannot drop the table Person, is this the first run?");
-            } else throw new SQLException(ex);
-        }
+
+        personDao.dropTable();
+
+//        if (1051 == ex.getErrorCode()) {
+//            // unknown table, may be the first run of the app
+//            log.info("Cannot drop the table Person, is this the first run?");
+//        } else throw new SQLException(ex);
 
     }
 }

@@ -1,22 +1,22 @@
 package io.dkozak.jobscheduler.services.database.dao;
 
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 
-import java.sql.SQLException;
 import java.util.Optional;
 
 public interface CrudDao<T, Key> {
-    ObservableList<T> findALl() throws SQLException;
+    Task<ObservableList<T>> findALl();
 
-    Optional<T> findOne(Key key) throws SQLException;
+    Task<Optional<T>> findOne(Key key);
 
-    void save(T t) throws SQLException;
+    Task<Void> save(T t);
 
-    void update(T t) throws SQLException;
+    Task<Void> update(T t);
 
-    void delete(Key key) throws SQLException;
+    Task<Void> delete(Key key);
 
-    void createTable() throws SQLException;
+    Task<Void> createTable();
 
-    void dropTable() throws SQLException;
+    Task<Void> dropTable();
 }
