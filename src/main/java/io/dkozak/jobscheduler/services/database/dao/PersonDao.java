@@ -27,22 +27,23 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @PostConstruct
     public void init() {
-        log.info("Preparing statements");
+        log.info("preparing statements");
         try {
             Connection connection = connector.getConnection();
             insert = connection.prepareStatement("INSERT INTO Person VALUES (?,?,?)");
             findAll = connection.prepareStatement("SELECT login,firstName,lastName FROM PERSON p");
-            findOne = connection.prepareStatement("SELECT login,firtName,lastName FROM PERSON p WHERE p.login=?");
+            findOne = connection.prepareStatement("SELECT login,firstName,lastName FROM PERSON p WHERE p.login=?");
             update = connection.prepareStatement("UPDATE Person p SET firstName=?,lastName=? WHERE p.login=?");
             delete = connection.prepareStatement("DELETE FROM Person p WHERE p.login=?");
-            log.info("PreparedStatements ready");
+            log.info("preparedStatements ready");
         } catch (SQLException ex) {
             // TODO show error
-            log.error("Creation of prepared statements failed: " + ex.getMessage());
+            log.error("creation of prepared statements failed: " + ex.getMessage());
         }
     }
 
     public void createTable() throws SQLException {
+        log.info("creating table");
         Connection connection = connector.getConnection();
         try (Statement statement = connection.createStatement();) {
             val createStatement = "CREATE TABLE Person(" +
@@ -56,6 +57,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public void dropTable() throws SQLException {
+        log.info("dropping table");
         Connection connection = connector.getConnection();
         try (Statement statement = connection.createStatement()) {
             val sql = "DROP TABLE Person";
@@ -65,6 +67,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public List<Person> findALl() throws SQLException {
+        log.info("finding all");
         val result = new ArrayList<Person>();
         try (ResultSet resultSet = findAll.executeQuery()) {
             while (resultSet.next()) {
@@ -77,6 +80,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public Optional<Person> findOne(String pk) throws SQLException {
+        log.info("finding person with login " + pk);
         findOne.setString(1, pk);
         try (ResultSet resultSet = findOne.executeQuery()) {
             if (resultSet.next()) {
@@ -89,6 +93,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public void save(Person person) throws SQLException {
+        log.info("saving person " + person);
         insert.setString(1, person.getLogin());
         insert.setString(2, person.getFirstName());
         insert.setString(3, person.getLastName());
@@ -100,6 +105,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public void update(Person person) throws SQLException {
+        log.info("updating " + person.getLogin() + " to " + person);
         update.setString(1, person.getFirstName());
         update.setString(2, person.getLastName());
         update.setString(3, person.getLogin());
@@ -111,6 +117,7 @@ public class PersonDao implements CrudDao<Person, String> {
 
     @Override
     public void delete(String pk) throws SQLException {
+        log.info("deleting person " + pk);
         delete.setString(1, pk);
         if (delete.executeUpdate() != 1) {
             throw new SQLException("delete failed");
