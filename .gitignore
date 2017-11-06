@@ -59,6 +59,8 @@ buildNumber.properties
 .idea/**/gradle.xml
 .idea/**/libraries
 
+.idea/sqldialects.xml
+
 # CMake
 cmake-build-debug/
 
