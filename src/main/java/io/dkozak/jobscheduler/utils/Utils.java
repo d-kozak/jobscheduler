@@ -1,6 +1,8 @@
 package io.dkozak.jobscheduler.utils;
 
 import com.airhacks.afterburner.views.FXMLView;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -20,5 +22,11 @@ public class Utils {
         stage.initOwner(primaryStage.getOwner());
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
+    }
+
+    public static void closeWindow(ActionEvent event) {
+        ((Node) event.getSource()).getScene()
+                                  .getWindow()
+                                  .hide();
     }
 }

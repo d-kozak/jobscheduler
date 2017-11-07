@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.sql.*;
 import java.util.Optional;
 
-import static io.dkozak.jobscheduler.services.database.dao.DaoController.daoExecutorService;
+import static io.dkozak.jobscheduler.services.database.dao.DaoManager.daoExecutorService;
 
 @Log4j
 public class PersonDao implements CrudDao<Person, String> {
@@ -66,26 +66,7 @@ public class PersonDao implements CrudDao<Person, String> {
     }
 
     @Override
-    public Task<Void> dropTable() {
-        val task = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                log.info("dropping table");
-                Connection connection = connector.getConnection();
-                try (Statement statement = connection.createStatement()) {
-                    val sql = "DROP TABLE Person";
-                    statement.executeUpdate(sql);
-                }
-
-                return null;
-            }
-        };
-        daoExecutorService.submit(task);
-        return task;
-    }
-
-    @Override
-    public Task<ObservableList<Person>> findALl() {
+    public Task<ObservableList<Person>> findAll() {
         val task = new Task<ObservableList<Person>>() {
             @Override
             protected ObservableList<Person> call() throws Exception {

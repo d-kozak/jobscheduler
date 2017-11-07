@@ -3,7 +3,7 @@ package io.dkozak.jobscheduler;
 import com.airhacks.afterburner.injection.Injector;
 import io.dkozak.jobscheduler.mainview.MainView;
 import io.dkozak.jobscheduler.services.database.DatabaseConnector;
-import io.dkozak.jobscheduler.services.database.dao.DaoController;
+import io.dkozak.jobscheduler.services.database.dao.DaoManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -26,9 +26,9 @@ public class Main extends Application {
     @Inject
     private DatabaseConnector databaseConnector;
 
-    // small hack to perform DI in daoController
+    // small hack to perform DI in daoManager
     @Inject
-    private DaoController daoController;
+    private DaoManager daoManager;
 
     public static void main(String[] args) {
         launch(args);
@@ -69,13 +69,13 @@ public class Main extends Application {
 
         log.info("closing the dao executor service");
 
-        DaoController.daoExecutorService.shutdown();
+        DaoManager.daoExecutorService.shutdown();
         try {
-            DaoController.daoExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+            DaoManager.daoExecutorService.awaitTermination(1, TimeUnit.SECONDS);
             log.info("dao executor terminated successfully");
         } catch (InterruptedException ex) {
             log.error("interrupted while waiting for the dao executor to end, now it will be shut down with force");
-            DaoController.daoExecutorService.shutdownNow();
+            DaoManager.daoExecutorService.shutdownNow();
         }
         log.info("shutting down the app... Goodbye :)");
     }

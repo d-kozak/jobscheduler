@@ -13,7 +13,7 @@ public class EditedPersonService {
         return Optional.ofNullable(editedPerson);
     }
 
-    public void unsetPerson() {
+    public void unsetEditedPerson() {
         editedPerson = null;
     }
 

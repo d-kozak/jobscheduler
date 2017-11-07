@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.*?>
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="io.dkozak.jobscheduler.addpersonview.AddPersonPresenter">
     <children>
@@ -68,5 +67,10 @@
             </children>
         </GridPane>
         <Text fx:id="infoText" strokeType="OUTSIDE" strokeWidth="0.0"/>
+        <Text fx:id="infoText" strokeType="OUTSIDE" strokeWidth="0.0">
+            <VBox.margin>
+                <Insets bottom="5.0" left="5.0"/>
+            </VBox.margin>
+        </Text>
     </children>
 </VBox>

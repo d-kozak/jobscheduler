@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static io.dkozak.jobscheduler.services.database.dao.DaoController.daoExecutorService;
+import static io.dkozak.jobscheduler.services.database.dao.DaoManager.daoExecutorService;
 
 @Log4j
 public class TaskDao implements CrudDao<Task, Integer> {
@@ -40,7 +40,7 @@ public class TaskDao implements CrudDao<Task, Integer> {
 
         try {
             Connection connection = connector.getConnection();
-            insert = connection.prepareStatement("INSERT INTO Task VALUES (?,?,?,?)");
+            insert = connection.prepareStatement("INSERT INTO Task (name,description,assignedPerson) VALUES (?,?,?)");
             findAll = connection.prepareStatement("SELECT id,name,description,assignedPerson FROM Task");
             findOne = connection.prepareStatement("SELECT id,name,description,assignedPerson FROM Task WHERE id=?");
             update = connection.prepareStatement("UPDATE Task SET name=?,description=?,assignedPerson=? WHERE id=?");
@@ -64,7 +64,8 @@ public class TaskDao implements CrudDao<Task, Integer> {
                             "id INTEGER PRIMARY KEY AUTO_INCREMENT," +
                             "name VARCHAR(50) NOT NULL , " +
                             "description VARCHAR(250) ," +
-                            "assignedPerson VARCHAR(50) KEY REFERENCES Person(login) ON  DELETE CASCADE ) ";
+                            "assignedPerson VARCHAR(50) NOT NULL, " +
+                            "FOREIGN KEY (assignedPerson) REFERENCES Person(login) ON DELETE CASCADE )";
                     statement.executeUpdate(createStatement);
                 }
                 return null;
@@ -75,26 +76,7 @@ public class TaskDao implements CrudDao<Task, Integer> {
     }
 
     @Override
-    public javafx.concurrent.Task<Void> dropTable() {
-        val task = new javafx.concurrent.Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                log.info("dropping table");
-                Connection connection = connector.getConnection();
-                try (Statement statement = connection.createStatement()) {
-                    val sql = "DROP TABLE Task";
-                    statement.executeUpdate(sql);
-                }
-
-                return null;
-            }
-        };
-        daoExecutorService.submit(task);
-        return task;
-    }
-
-    @Override
-    public javafx.concurrent.Task<ObservableList<Task>> findALl() {
+    public javafx.concurrent.Task<ObservableList<Task>> findAll() {
         val task = new javafx.concurrent.Task<ObservableList<Task>>() {
             @Override
             protected ObservableList<Task> call() throws Exception {
@@ -164,7 +146,7 @@ public class TaskDao implements CrudDao<Task, Integer> {
                 update.setString(2, task.getDescription());
                 update.setString(3, task.getAssignedPerson()
                                         .getLogin());
-                update.setInt(3, task.getId());
+                update.setInt(4, task.getId());
 
                 if (update.executeUpdate() != 1) {
                     throw new SQLException("update failed");

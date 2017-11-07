@@ -50,8 +50,6 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
                              .get(event.getTablePosition()
                                        .getRow());
         setter.accept(person, event.getNewValue());
-        person.setFirstName(event.getNewValue());
-
 
         Task<Void> task = personDao.update(person);
         task.setOnSucceeded(event1 -> {
@@ -94,7 +92,7 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
     private void loadDataIntoTable(boolean showMessageOnFinished) {
         log.info("loading data into the table");
 
-        Task<ObservableList<Person>> task = personDao.findALl();
+        Task<ObservableList<Person>> task = personDao.findAll();
         task.setOnSucceeded(event -> {
             ObservableList<Person> loadedList = task.getValue();
             log.info("Loaded" + loadedList);
@@ -109,7 +107,7 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
 
     @FXML
     public void onAdd(ActionEvent event) {
-        editedPersonService.unsetPerson();
+        editedPersonService.unsetEditedPerson();
         openModalDialog(this.primaryStage, "Add new person", new AddPersonView());
         // reload the table
         loadDataIntoTable(true);
@@ -119,6 +117,11 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
     public void onEdit(ActionEvent event) {
         Person selectedPerson = tableView.getSelectionModel()
                                          .getSelectedItem();
+        if (selectedPerson == null) {
+            showErrorMessage("Please select person first");
+            return;
+        }
+
         editedPersonService.setEditedPerson(selectedPerson);
         openModalDialog(this.primaryStage, "Edit person " + selectedPerson.getLogin(), new AddPersonView());
         // reload the table
@@ -129,6 +132,11 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
     public void onDelete(ActionEvent event) {
         Person selectedPerson = tableView.getSelectionModel()
                                          .getSelectedItem();
+
+        if (selectedPerson == null) {
+            showErrorMessage("Please select person first");
+            return;
+        }
 
         Task<Void> task = personDao.delete(selectedPerson.getLogin());
         task.setOnSucceeded(event1 -> {

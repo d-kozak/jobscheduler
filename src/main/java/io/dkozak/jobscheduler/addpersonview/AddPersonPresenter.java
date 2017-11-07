@@ -8,7 +8,6 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -19,6 +18,8 @@ import javax.inject.Inject;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import static io.dkozak.jobscheduler.utils.Utils.closeWindow;
 
 @Log4j
 public class AddPersonPresenter implements Initializable, NotifiablePresenter {
@@ -100,12 +101,6 @@ public class AddPersonPresenter implements Initializable, NotifiablePresenter {
     @FXML
     public void onCancel(ActionEvent event) {
         closeWindow(event);
-    }
-
-    private void closeWindow(ActionEvent event) {
-        ((Node) event.getSource()).getScene()
-                                  .getWindow()
-                                  .hide();
     }
 
     @Override

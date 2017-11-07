@@ -6,7 +6,7 @@ import javafx.concurrent.Task;
 import java.util.Optional;
 
 public interface CrudDao<T, Key> {
-    Task<ObservableList<T>> findALl();
+    Task<ObservableList<T>> findAll();
 
     Task<Optional<T>> findOne(Key key);
 
@@ -17,6 +17,4 @@ public interface CrudDao<T, Key> {
     Task<Void> delete(Key key);
 
     Task<Void> createTable();
-
-    Task<Void> dropTable();
 }

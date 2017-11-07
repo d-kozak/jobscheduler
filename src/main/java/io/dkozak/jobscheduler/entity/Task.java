@@ -2,14 +2,22 @@ package io.dkozak.jobscheduler.entity;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
+@EqualsAndHashCode
 public class Task {
     private int id;
     private final SimpleStringProperty name;
     private final SimpleStringProperty description;
     private final SimpleObjectProperty<Person> assignedPerson;
+
+    public Task() {
+        this.name = new SimpleStringProperty();
+        this.description = new SimpleStringProperty();
+        this.assignedPerson = new SimpleObjectProperty<>();
+    }
 
     public Task(String name, String description, Person assignedPerson) {
         this.name = new SimpleStringProperty(name);

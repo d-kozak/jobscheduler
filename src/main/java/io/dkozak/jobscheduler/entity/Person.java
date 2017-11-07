@@ -2,9 +2,11 @@ package io.dkozak.jobscheduler.entity;
 
 
 import javafx.beans.property.SimpleStringProperty;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @ToString
+@EqualsAndHashCode
 public class Person {
     private final SimpleStringProperty login;
     private final SimpleStringProperty firstName;

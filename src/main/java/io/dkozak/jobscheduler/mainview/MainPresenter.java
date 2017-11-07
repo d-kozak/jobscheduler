@@ -1,7 +1,8 @@
 package io.dkozak.jobscheduler.mainview;
 
 import io.dkozak.jobscheduler.personView.PersonView;
-import io.dkozak.jobscheduler.services.database.dao.DaoController;
+import io.dkozak.jobscheduler.services.database.dao.DaoManager;
+import io.dkozak.jobscheduler.taskview.TaskView;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,21 +29,23 @@ public class MainPresenter implements Initializable, NotifiablePresenter {
     private Text infoText;
 
     @Inject
-    private DaoController daoController;
+    private DaoManager daoManager;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("initializing main view");
 
-        daoController.getPrepareDatabaseTask()
-                     .setOnSucceeded(event -> showInfoMessage("Database initialized successfully"));
+        daoManager.getPrepareDatabaseTask()
+                  .setOnSucceeded(event -> showInfoMessage("Database initialized successfully"));
 
-        daoController.getPrepareDatabaseTask()
-                     .exceptionProperty()
-                     .addListener((observable, oldValue, newValue) -> showErrorMessage("Database initialization failed :" + newValue.getMessage()));
+        daoManager.getPrepareDatabaseTask()
+                  .exceptionProperty()
+                  .addListener((observable, oldValue, newValue) -> showErrorMessage("Database initialization failed :" + newValue.getMessage()));
 
         PersonView personView = new PersonView();
         peopleTab.setContent(personView.getView());
+        TaskView taskView = new TaskView();
+        tasksTab.setContent(taskView.getView());
     }
 
     @Override
