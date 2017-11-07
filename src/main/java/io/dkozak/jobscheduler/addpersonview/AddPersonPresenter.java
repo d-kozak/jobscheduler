@@ -2,6 +2,7 @@ package io.dkozak.jobscheduler.addpersonview;
 
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
+import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
 import javafx.concurrent.Task;
@@ -43,6 +44,9 @@ public class AddPersonPresenter implements Initializable, NotifiablePresenter {
     private EditedPersonService editedPersonService;
 
     private boolean isEdit;
+
+    @Inject
+    private MessageService messageService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -87,6 +91,7 @@ public class AddPersonPresenter implements Initializable, NotifiablePresenter {
 
         task.setOnSucceeded(workerStateEvent -> {
             log.info("Task finished, window will be closed soon");
+            messageService.infoMessage("Person " + person.getLogin() + (isEdit ? " edited " : " created ") + "successfully");
             closeWindow(event);
         });
         task.exceptionProperty()

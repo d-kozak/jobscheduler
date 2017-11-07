@@ -148,7 +148,7 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
         editedTaskService.unsetEditedTask();
         openModalDialog(this.primaryStage, "Add new person", new AddTaskView());
         // reload the table
-        loadDataIntoTable(true);
+        loadDataIntoTable(false);
     }
 
     @FXML
@@ -162,7 +162,7 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
         editedTaskService.setEditedTask(selectedTask);
         openModalDialog(this.primaryStage, "Edit task " + selectedTask.getName(), new AddTaskView());
         // reload the table
-        loadDataIntoTable(true);
+        loadDataIntoTable(false);
     }
 
     @FXML

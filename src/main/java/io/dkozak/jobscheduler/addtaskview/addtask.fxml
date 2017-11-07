@@ -23,7 +23,7 @@
             <children>
                 <HBox alignment="CENTER_RIGHT" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#onAdd" text="Add">
+                        <Button mnemonicParsing="false" fx:id="addButton" onAction="#onAdd" text="Add">
                             <HBox.margin>
                                 <Insets bottom="10.0" left="5.0" right="10.0" top="5.0"/>
                             </HBox.margin>

@@ -114,7 +114,7 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
         editedPersonService.unsetEditedPerson();
         openModalDialog(this.primaryStage, "Add new person", new AddPersonView());
         // reload the table
-        loadDataIntoTable(true);
+        loadDataIntoTable(false);
     }
 
     @FXML
@@ -129,7 +129,7 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
         editedPersonService.setEditedPerson(selectedPerson);
         openModalDialog(this.primaryStage, "Edit person " + selectedPerson.getLogin(), new AddPersonView());
         // reload the table
-        loadDataIntoTable(true);
+        loadDataIntoTable(false);
     }
 
     @FXML

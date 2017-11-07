@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.addtaskview;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.entity.Task;
 import io.dkozak.jobscheduler.services.EditedTaskService;
+import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import io.dkozak.jobscheduler.services.database.dao.TaskDao;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
@@ -11,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -29,6 +31,8 @@ import static io.dkozak.jobscheduler.utils.Utils.closeWindow;
 @Log4j
 public class AddTaskPresenter implements Initializable, NotifiablePresenter {
     @FXML
+    private Button addButton;
+    @FXML
     private TextArea descriptionTextArea;
     @FXML
     private TextField nameTextField;
@@ -46,6 +50,9 @@ public class AddTaskPresenter implements Initializable, NotifiablePresenter {
     @Inject
     private TaskDao taskDao;
 
+    @Inject
+    private MessageService messageService;
+
     private Task backingTask;
 
     private boolean isEdit;
@@ -59,6 +66,7 @@ public class AddTaskPresenter implements Initializable, NotifiablePresenter {
         if (editedTask.isPresent()) {
             backingTask = editedTask.get();
             isEdit = true;
+            addButton.setText("Edit");
         } else {
             backingTask = new Task();
             isEdit = false;
@@ -111,6 +119,7 @@ public class AddTaskPresenter implements Initializable, NotifiablePresenter {
         }
         task.setOnSucceeded(event1 -> {
             log.info("Operation successful, window will be closed soon");
+            messageService.infoMessage("Task " + this.backingTask.getName() + (isEdit ? " edited " : " created ") + "successfully");
             closeWindow(event);
         });
         task.setOnFailed(event1 -> {
