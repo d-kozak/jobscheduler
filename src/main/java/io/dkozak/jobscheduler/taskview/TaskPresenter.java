@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.taskview;
 import io.dkozak.jobscheduler.addtaskview.AddTaskView;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedTaskService;
+import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import io.dkozak.jobscheduler.services.database.dao.TaskDao;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
@@ -44,6 +45,9 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
 
     @Inject
     private EditedTaskService editedTaskService;
+
+    @Inject
+    private MessageService messageService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -183,13 +187,13 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
     @Override
     public void showInfoMessage(String message) {
         log.info("passing info message to event bus:" + message);
-        // TODO add event bus
+        messageService.infoMessage(message);
     }
 
     @Override
     public void showErrorMessage(String message) {
         log.error("passing error message to event bus:" + message);
-        // TODO add event bus
+        messageService.errorMessage(message);
     }
 
 }

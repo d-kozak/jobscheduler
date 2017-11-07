@@ -1,13 +1,13 @@
 package io.dkozak.jobscheduler.mainview;
 
 import io.dkozak.jobscheduler.personView.PersonView;
+import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.DaoManager;
 import io.dkozak.jobscheduler.taskview.TaskView;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Tab;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j;
 
@@ -31,6 +31,9 @@ public class MainPresenter implements Initializable, NotifiablePresenter {
     @Inject
     private DaoManager daoManager;
 
+    @Inject
+    private MessageService messageService;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("initializing main view");
@@ -46,19 +49,19 @@ public class MainPresenter implements Initializable, NotifiablePresenter {
         peopleTab.setContent(personView.getView());
         TaskView taskView = new TaskView();
         tasksTab.setContent(taskView.getView());
+
+        messageService.setMessageDestination(infoText);
     }
 
     @Override
     public void showInfoMessage(String message) {
         log.info("Info message: " + message);
-        infoText.setFill(Color.BLACK);
-        infoText.setText(message);
+        messageService.infoMessage(message);
     }
 
     @Override
     public void showErrorMessage(String message) {
         log.error("Error message: " + message);
-        infoText.setFill(Color.RED);
-        infoText.setText(message);
+        messageService.errorMessage(message);
     }
 }
