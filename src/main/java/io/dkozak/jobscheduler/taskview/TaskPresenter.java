@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.taskview;
 import io.dkozak.jobscheduler.addtaskview.AddTaskView;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedTaskService;
+import io.dkozak.jobscheduler.services.EventBus;
 import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import io.dkozak.jobscheduler.services.database.dao.TaskDao;
@@ -29,7 +30,7 @@ import java.util.function.BiConsumer;
 import static io.dkozak.jobscheduler.utils.Utils.openModalDialog;
 
 @Log4j
-public class TaskPresenter implements NotifiablePresenter, Initializable {
+public class TaskPresenter implements NotifiablePresenter, Initializable, EventBus.EventBusListener {
 
     @FXML
     private TableView<io.dkozak.jobscheduler.entity.Task> tableView;
@@ -49,9 +50,13 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
     @Inject
     private MessageService messageService;
 
+    @Inject
+    private EventBus eventBus;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initTaskTable();
+        eventBus.register(this);
     }
 
     private void onTableChanged(TableColumn.CellEditEvent<io.dkozak.jobscheduler.entity.Task, String> event, BiConsumer<io.dkozak.jobscheduler.entity.Task, String> setter) {
@@ -196,4 +201,13 @@ public class TaskPresenter implements NotifiablePresenter, Initializable {
         messageService.errorMessage(message);
     }
 
+    @Override
+    public void onMessage(String messageId, Optional<Object> content) {
+        if ("refresh".equals(messageId)) {
+            log.info("accepted refresh message, reloading the table");
+            loadDataIntoTable(false);
+        } else {
+            log.info("accepted unknown message " + messageId);
+        }
+    }
 }

@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.personView;
 import io.dkozak.jobscheduler.addpersonview.AddPersonView;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
+import io.dkozak.jobscheduler.services.EventBus;
 import io.dkozak.jobscheduler.services.MessageService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
 import io.dkozak.jobscheduler.utils.NotifiablePresenter;
@@ -42,6 +43,9 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
 
     @Inject
     private MessageService messageService;
+
+    @Inject
+    private EventBus eventBus;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -146,6 +150,7 @@ public class PersonPresenter implements NotifiablePresenter, Initializable {
         task.setOnSucceeded(event1 -> {
             showInfoMessage("Deleting " + selectedPerson.getLogin() + " finished");
             loadDataIntoTable(false);
+            eventBus.sendMessage("refresh");
         });
 
         task.exceptionProperty()
