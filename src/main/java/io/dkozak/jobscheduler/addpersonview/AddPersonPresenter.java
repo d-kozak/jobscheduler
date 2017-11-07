@@ -3,6 +3,7 @@ package io.dkozak.jobscheduler.addpersonview;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
+import io.dkozak.jobscheduler.utils.NotifiablePresenter;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +21,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 @Log4j
-public class AddPersonPresenter implements Initializable {
+public class AddPersonPresenter implements Initializable, NotifiablePresenter {
     @FXML
     private TextField login;
     @FXML
@@ -65,13 +66,13 @@ public class AddPersonPresenter implements Initializable {
         String firstName = this.firstName.getText();
         String lastName = this.lastName.getText();
         if (login.isEmpty()) {
-            showErrorMessageFor("Login");
+            showEmptyFieldErrorMessageFor("Login");
             return;
         } else if (firstName.isEmpty()) {
-            showErrorMessageFor("First name");
+            showEmptyFieldErrorMessageFor("First name");
             return;
         } else if (lastName.isEmpty()) {
-            showErrorMessageFor("last name");
+            showEmptyFieldErrorMessageFor("last name");
             return;
         }
 
@@ -88,13 +89,12 @@ public class AddPersonPresenter implements Initializable {
             closeWindow(event);
         });
         task.exceptionProperty()
-            .addListener((observable, oldValue, newValue) -> showErrorMessageFor("Operation failed: " + newValue.getMessage()));
+            .addListener((observable, oldValue, newValue) -> showErrorMessage("Operation failed: " + newValue.getMessage()));
 
     }
 
-    private void showErrorMessageFor(String field) {
-        infoText.setFill(Color.RED);
-        infoText.setText(String.format("Please fill in the '%s' field", field));
+    private void showEmptyFieldErrorMessageFor(String field) {
+        showErrorMessage(String.format("Please fill in the '%s' field", field));
     }
 
     @FXML
@@ -106,5 +106,19 @@ public class AddPersonPresenter implements Initializable {
         ((Node) event.getSource()).getScene()
                                   .getWindow()
                                   .hide();
+    }
+
+    @Override
+    public void showInfoMessage(String message) {
+        log.info("Info message: " + message);
+        infoText.setFill(Color.BLACK);
+        infoText.setText(message);
+    }
+
+    @Override
+    public void showErrorMessage(String message) {
+        log.error("Error message: " + message);
+        infoText.setFill(Color.RED);
+        infoText.setText(message);
     }
 }

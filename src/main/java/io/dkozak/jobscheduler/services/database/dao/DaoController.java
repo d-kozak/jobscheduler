@@ -1,10 +1,13 @@
 package io.dkozak.jobscheduler.services.database.dao;
 
+import io.dkozak.jobscheduler.entity.Person;
+import javafx.concurrent.Task;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.sql.SQLException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,39 +20,55 @@ public class DaoController {
     @Inject
     private String createTables;
 
+    @Getter
+    private Task<Void> prepareDatabaseTask;
+
     public static final ExecutorService daoExecutorService = Executors.newFixedThreadPool(10);
 
     @PostConstruct
     public void init() {
         if ("true".equals(createTables)) {
             log.info("creating new tables");
-            try {
-                dropTables();
-                createTables();
-                log.info("finished");
-            } catch (SQLException ex) {
-                // TODO show exception in view
-                log.error("creation of new tables failed");
-                log.error("SQL error : " + ex.getErrorCode());
-                throw new RuntimeException(ex);
-            }
+            prepareDatabaseTask = new Task<Void>() {
+
+                @Override
+                protected Void call() throws Exception {
+                    dropTables();
+                    createTables();
+                    loadDemoData();
+                    return null;
+                }
+
+                private void loadDemoData() throws ExecutionException, InterruptedException {
+                    personDao.save(new Person("xkozak15", "David", "Kozak"))
+                             .get();
+                    personDao.save(new Person("xabrah15", "Lukas", "Abraham"))
+                             .get();
+                    personDao.save(new Person("xmendel1", "Vetrelec", "z Mendelky"))
+                             .get();
+                    personDao.save(new Person("xrobot01", "robot", "pomaly"))
+                             .get();
+                    personDao.save(new Person("xrobot02", "robot", "rychly"))
+                             .get();
+                }
+
+                private void createTables() throws ExecutionException, InterruptedException {
+                    log.info("creating tables...");
+                    personDao.createTable()
+                             .get();
+                }
+
+                private void dropTables() throws ExecutionException, InterruptedException {
+                    log.info("dropping tables...");
+                    personDao.dropTable()
+                             .get();
+                    //        if (1051 == ex.getErrorCode()) {
+                    //            // unknown table, may be the first run of the app
+                    //            log.info("Cannot drop the table Person, is this the first run?");
+                    //        } else throw new SQLException(ex);
+                }
+            };
+            daoExecutorService.submit(prepareDatabaseTask);
         }
-    }
-
-    public void createTables() throws SQLException {
-        log.info("creating tables...");
-        personDao.createTable();
-    }
-
-    public void dropTables() throws SQLException {
-        log.info("dropping tables...");
-
-        personDao.dropTable();
-
-//        if (1051 == ex.getErrorCode()) {
-//            // unknown table, may be the first run of the app
-//            log.info("Cannot drop the table Person, is this the first run?");
-//        } else throw new SQLException(ex);
-
     }
 }

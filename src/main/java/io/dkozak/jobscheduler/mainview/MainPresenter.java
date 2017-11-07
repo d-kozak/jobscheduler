@@ -4,7 +4,9 @@ import com.airhacks.afterburner.views.FXMLView;
 import io.dkozak.jobscheduler.addpersonview.AddPersonView;
 import io.dkozak.jobscheduler.entity.Person;
 import io.dkozak.jobscheduler.services.EditedPersonService;
+import io.dkozak.jobscheduler.services.database.dao.DaoController;
 import io.dkozak.jobscheduler.services.database.dao.PersonDao;
+import io.dkozak.jobscheduler.utils.NotifiablePresenter;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -28,7 +30,7 @@ import java.util.function.BiConsumer;
 
 
 @Log4j
-public class MainPresenter implements Initializable {
+public class MainPresenter implements Initializable, NotifiablePresenter {
 
     @FXML
     private TableView<Person> tableView;
@@ -43,12 +45,21 @@ public class MainPresenter implements Initializable {
     private PersonDao personDao;
 
     @Inject
+    private DaoController daoController;
+
+    @Inject
     private EditedPersonService editedPersonService;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         log.info("initializing main view");
 
+        daoController.getPrepareDatabaseTask()
+                     .setOnSucceeded(event -> showInfoMessage("Database initialized successfully"));
+
+        daoController.getPrepareDatabaseTask()
+                     .exceptionProperty()
+                     .addListener((observable, oldValue, newValue) -> showErrorMessage("Database initialization failed :" + newValue.getMessage()));
         initTable();
     }
 
@@ -73,8 +84,8 @@ public class MainPresenter implements Initializable {
     private void initTable() {
         tableView.setEditable(true);
 
-
         TableColumn<Person, String> loginColumn = new TableColumn<>("Login");
+        loginColumn.setEditable(false);
         loginColumn.setCellValueFactory(new PropertyValueFactory<>("login"));
         loginColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
@@ -159,12 +170,16 @@ public class MainPresenter implements Initializable {
             .addListener((observable, oldValue, newValue) -> showErrorMessage("Cannot delete person " + selectedPerson.getLogin() + ", reason: " + newValue.getMessage()));
     }
 
-    private void showInfoMessage(String message) {
+    @Override
+    public void showInfoMessage(String message) {
+        log.info("Info message: " + message);
         infoText.setFill(Color.BLACK);
         infoText.setText(message);
     }
 
-    private void showErrorMessage(String message) {
+    @Override
+    public void showErrorMessage(String message) {
+        log.error("Error message: " + message);
         infoText.setFill(Color.RED);
         infoText.setText(message);
     }
